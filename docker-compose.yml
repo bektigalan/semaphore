@@ -2,10 +2,11 @@
 volumes:
   semaphore-mysql:
     driver: local
+
 services:
-  mysql:
-    image: docker.io/library/mysql:8.3
-    hostname: mysql
+  mariadb:
+    image: docker.io/library/mariadb:10.5
+    hostname: mariadb
     volumes:
       - semaphore-mysql:/var/lib/mysql
     environment:
@@ -14,6 +15,7 @@ services:
       - MYSQL_USER=semaphore
       - MYSQL_PASSWORD=semaphore  # change!
     restart: unless-stopped
+
   semaphore:
     container_name: ansiblesemaphore
     image: docker.io/semaphoreui/semaphore:v2.10.22
@@ -23,7 +25,7 @@ services:
     environment:
       - SEMAPHORE_DB_USER=semaphore
       - SEMAPHORE_DB_PASS=semaphore  # change!
-      - SEMAPHORE_DB_HOST=mysql
+      - SEMAPHORE_DB_HOST=mariadb
       - SEMAPHORE_DB_PORT=3306
       - SEMAPHORE_DB_DIALECT=mysql
       - SEMAPHORE_DB=semaphore
@@ -32,7 +34,7 @@ services:
       - SEMAPHORE_ADMIN_NAME=admin
       - SEMAPHORE_ADMIN_EMAIL=admin@localhost
       - SEMAPHORE_ADMIN=admin
-      - SEMAPHORE_ACCESS_KEY_ENCRYPTION=0JATVpme6uqvKaPa972ptAiEBdwIuRjfOt1JMqjxgiA=  # add to your access key encryption !
+      - SEMAPHORE_ACCESS_KEY_ENCRYPTION=0JATVpme6uqvKaPa972ptAiEBdwIuRjfOt1JMqjxgiA=  # add your access key encryption!
       - ANSIBLE_HOST_KEY_CHECKING=false  # (optional) change to true if you want to enable host key checking
     volumes:
       - ./inventory/:/inventory:ro
@@ -40,4 +42,4 @@ services:
       - ./config/:/etc/semaphore:rw
     restart: unless-stopped
     depends_on:
-      - mysql
+      - mariadb
